@@ -1,5 +1,7 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import Note from './models/note.js';
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -26,21 +28,18 @@ let notes = [
   },
 ];
 
-const generateId = () =>
-  notes.length > 0 ? Math.max(...notes.map((note) => note.id)) + 1 : 1;
-
 app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>');
 });
 
 app.get('/api/notes', (request, response) => {
-  response.json(notes);
+  Note.find({}).then((notes) => response.json(notes));
 });
 
 app.get('/api/notes/:id', (request, response) => {
-  const note = notes.find((note) => note.id === Number(request.params.id));
-
-  return note ? response.json(note) : response.status(404).end();
+  Note.findById(request.params.id).then((note) => {
+    response.json(note);
+  });
 });
 
 app.delete('/api/notes/:id', (request, response) => {
@@ -57,14 +56,14 @@ app.post('/api/notes', (request, response) => {
     });
   }
 
-  const note = {
+  const note = new Note({
     content: body.content,
     important: Boolean(body.important) || false,
-    id: generateId(),
-  };
+  });
 
-  notes = notes.concat(note);
-  response.json(request.body);
+  note.save().then((savedNote) => {
+    response.json(savedNote);
+  });
 });
 
 app.listen(port, () => {
