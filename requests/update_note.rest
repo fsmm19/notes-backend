@@ -1,0 +1,6 @@
+PUT http://localhost:3001/api/notes/6a34cd776d2ef74801948f93
+Content-Type: application/json
+
+{
+  "content": "Probando validaciones"
+}
