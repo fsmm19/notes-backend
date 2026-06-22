@@ -4,6 +4,7 @@ import cors from 'cors';
 import { MONGODB_URI } from './utils/config.js';
 import { logInfo, logError } from './utils/logger.js';
 import notesRouter from './controllers/notes.js';
+import usersRouter from './controllers/users.js';
 import {
   requestLogger,
   unknownEndpoint,
@@ -25,6 +26,7 @@ app.use(express.json());
 app.use(requestLogger);
 
 app.use('/api/notes', notesRouter);
+app.use('/api/users', usersRouter);
 
 app.use(unknownEndpoint);
 app.use(errorHandler);

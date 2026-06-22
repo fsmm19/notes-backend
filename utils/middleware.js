@@ -1,4 +1,4 @@
-import { logInfo } from './logger.js';
+import { logInfo, logError } from './logger.js';
 
 const requestLogger = (request, response, next) => {
   logInfo('Method:', request.method);
@@ -12,7 +12,7 @@ const unknownEndpoint = (request, response) =>
   response.status(404).json({ error: 'Unknown endpoint' });
 
 const errorHandler = (error, request, response, next) => {
-  console.error(error.message);
+  logError(error.message);
 
   if (error.name === 'CastError') {
     return response.status(400).json({
@@ -21,6 +21,13 @@ const errorHandler = (error, request, response, next) => {
   } else if (error.name === 'ValidationError') {
     return response.status(400).json({
       error: error.message,
+    });
+  } else if (
+    error.name === 'MongoServerError' &&
+    error.message.includes('E11000 duplicate key error')
+  ) {
+    return response.status(400).json({
+      error: 'expected `username` to be unique',
     });
   }
 
